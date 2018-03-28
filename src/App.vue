@@ -32,6 +32,7 @@
 
 
 // const url2 = location.href.slice(23);
+var my_word_data = require('../static/data/wordData.json');
 
 
 export default {
@@ -74,12 +75,17 @@ export default {
     
   },
   created() {
-    this.$http.get('/api/recite').then((response) => {
-      response = response.body;
-      if (response.errno === 0) {
-        this.wordData = response.data;
-      }
-    })
+    console.log('这里的数据是')
+    console.log(my_word_data)
+    this.wordData = my_word_data
+    // this.$http.get('/api/recite').then((response) => {
+    //   response = response.body;
+    //   if (response.errno === 0) {
+    //     this.wordData = response.data;
+    //     console.log('请求回来的数据是')
+    //     console.log(this.wordData.data)
+    //   }
+    // })
   }
 }
 </script>
