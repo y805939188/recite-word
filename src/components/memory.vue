@@ -5,8 +5,8 @@
       <div class="mer-title">
         <span class="recited">
           <span>熟记{{skilled.length}}/</span>
-          <span>已背{{forgeted.length+count1.length+count2.length+count3.length+count4.length+count5.length+skilled.length}}\</span>
-          <span>未背{{3862-(forgeted.length+count1.length+count2.length+count3.length+count4.length+count5.length+skilled.length)}}</span>
+          <span>已背{{forgeted.length+count1.length+count2.length+count3.length+count4.length+count5.length+skilled.length}}/</span>
+          <span>未背{{wordNum-(forgeted.length+count1.length+count2.length+count3.length+count4.length+count5.length+skilled.length)}}</span>
         </span>
          <level :count-num="this.randomWord.count"></level>
       </div>
@@ -82,11 +82,12 @@
 <script>
 import Vue from 'vue';
 import level from './level'
+let wordNum = 0;
 let random;
 let num;
 let Num1 = 0;
 let Num2 = 0;
-
+var my_word_data = require('../../static/data/wordData.json');
 var setLocal = {
     save(key,value){
         localStorage.setItem(key, JSON.stringify(value))
@@ -96,9 +97,6 @@ var setLocal = {
     }
 }
 
-
-
-
 // import propsync from '../../static/mixin/propsync.js';//引入mixin文件
 export default {
   name: 'memory',
@@ -106,6 +104,7 @@ export default {
   data () {
     return {
       arr: [],
+      wordNum: wordNum,
       sen: '',
       isDev: '展开',
       isDevelop: 'isDevelop1',
@@ -130,7 +129,17 @@ export default {
 
     }
   },
-
+  beforeRouteEnter(to, from, next) {
+    if(from.path === '/liuji') {
+      wordNum = 6135
+    } else if (from.path === '/siji') {
+      wordNum = 4698
+    } else {
+      wordNum = 3826
+    }
+    // console.log(from.path)
+    next()
+  },
   watch:{
     // 要监听的数据名:function(){
     //     setLocal.save('todos',this.list);
@@ -152,24 +161,34 @@ export default {
     }
   },
   created() {
+    // this.$router.beforeEach((to, from, next) => {
+    //   console.log(to)
+    //   console.log(from)
+    //   // to 和 from 都是 路由信息对象
+      
+    //   // 这里的from.path就是上一步的url的hash值
+    // })
+    // let routes = this.$router.options.routes
+    // console.log(this.$router)
+    // console.log(this)
+    // if(routes[routes.length -1].path === '')
+    this.wordData = my_word_data;
     this.$emit("update:disappear",false);
-
-      this.random = Math.floor(Math.random() * this.nowArrNum);
-      this.$nextTick(() => { // 在这个函数中调用以防内容还未更新完就执行,该函数执行在dom更新完成后,在这儿不知道有用没用,貌似没用
-        this.randomWord = this.wordData.data[this.random];
-      });
-      if(!(window.localStorage.length === 0)) {
-        this.randomWord = setLocal.get("randomWord");
-        this.nowArrNum = setLocal.get("nowArrNum");
-        this.forgeted = setLocal.get("forgeted") || [];
-        this.skilled = setLocal.get("skilled") || [];
-        this.count1 = setLocal.get("count1") || [];
-        this.count2 = setLocal.get("count2") || [];
-        this.count3 = setLocal.get("count3") || [];
-        this.count4 = setLocal.get("count4") || [];
-        this.count5 = setLocal.get("count5") || [];
-      }
-      console.log(this.randomWord)
+    this.random = Math.floor(Math.random() * this.nowArrNum);
+    this.$nextTick(() => { // 在这个函数中调用以防内容还未更新完就执行,该函数执行在dom更新完成后,在这儿不知道有用没用,貌似没用
+      this.randomWord = this.wordData.data[this.random];
+    });
+    if(!(window.localStorage.length === 0)) {
+      this.randomWord = setLocal.get("randomWord");
+      this.nowArrNum = setLocal.get("nowArrNum");
+      this.forgeted = setLocal.get("forgeted") || [];
+      this.skilled = setLocal.get("skilled") || [];
+      this.count1 = setLocal.get("count1") || [];
+      this.count2 = setLocal.get("count2") || [];
+      this.count3 = setLocal.get("count3") || [];
+      this.count4 = setLocal.get("count4") || [];
+      this.count5 = setLocal.get("count5") || [];
+    }
   },
 
   computed: {
@@ -307,7 +326,7 @@ export default {
       }
     }
   },
-  props: ["wordData", "disappear"],
+  props: ["disappear", "wordnum"],
   components: {
     level,
   }

@@ -23,6 +23,7 @@
 </template>
 
 <script>
+var my_word_data = require('../../static/data/wordData.json');
 export default {
   name: 'list',
   data () {
@@ -32,7 +33,7 @@ export default {
     }
   },
   created() {
-
+      this.wordData = my_word_data
   },
   computed: {
     indexWord() {
