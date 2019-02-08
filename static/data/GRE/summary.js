@@ -1,0 +1,1 @@
+var summary = {"numTotal":7318,"numPerList":50,"bookName":"GRE词汇","numPerFile":400,"firstLoad":30,"nextLoad":15};

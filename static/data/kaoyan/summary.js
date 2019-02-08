@@ -1,0 +1,1 @@
+var summary = {"numTotal":5218,"numPerList":50,"bookName":"考研词汇","numPerFile":400,"firstLoad":30,"nextLoad":15};

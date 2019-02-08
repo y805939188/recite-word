@@ -1,5 +1,14 @@
 <template>
+  
   <div class="memory">
+    <div id="title"> 
+      <i class="back" @click="back"></i>
+      <span class="titl">{{classificationObj.title}}</span>
+      <div class="wordList">
+        <!-- <router-link class="list" to="/wordList">词汇表</router-link> -->
+        <i class="DNtype"></i>
+      </div>
+    </div>
     <div class="mer-wrapper">
       <!-- 熟记/已记/未背 和  小图标-->
       <div class="mer-title">
@@ -14,11 +23,11 @@
       <div class="word-content">
         <div class="wordWarp">
             <h1>{{this.randomWord.w}}</h1>
-            <div class="pronunciation">
+            <div class="pronunciation" @click="handleWordVoice">
               <span></span>
               <span class="phonetic">英 [{{this.randomWord.en}}]</span>
             </div>
-            <div class="pronunciation">
+            <div class="pronunciation" @click="handleWordVoice">
               <span></span>
               <span class="phonetic">美 [{{this.randomWord.us}}]</span>
             </div>
@@ -43,7 +52,7 @@
                   <li v-for="(sentence,index) in this.randomWord.sen" :key="sentence.value">
                     <p>
                       <span>{{index}}.</span>
-                      <span v-html="senSplit[index]"></span>
+                      <span v-html="mySenSplit[index]"></span>
                     </p>
                     <p>{{sentence.c}}</p>
                   </li>
@@ -54,7 +63,7 @@
               <h2>同近义词</h2>
               <div>
                 <ul>
-                  <li v-for="(homoionym,index) in this.randomWord.syn" :key="homoionym.value">
+                  <li v-for="homoionym in this.randomWord.syn" :key="homoionym.value">
                     <p>{{homoionym.w}}</p>
                     <p>{{homoionym.bisp}}</p>
                   </li>
@@ -62,7 +71,13 @@
               </div>
             </div>
           </div>
-        </div> 
+        </div>
+        <div class="addToNote" @click="handleAddNote">
+          <span>
+            <img v-show="!theNowWordHasAddedToNote" src="../../static/image/wordsbook_add_night_normal.png" alt="">
+            <img v-show="theNowWordHasAddedToNote" src="../../static/image/wordsbook_delete_night_pressed.png" alt="">
+          </span>
+        </div>
       </div>
       <!-- 按钮  -->
       <div class="button">
@@ -80,31 +95,44 @@
 </template>
 
 <script>
+import { ADD_TO_NOTE } from '../url/index.js'
 import Vue from 'vue';
 import level from './level'
-let wordNum = 0;
+import { EventBus } from '../bus/event-bus.js'
+import { senSplit, wordVoice } from '../utils/utils.js'
+// let wordNum = 0;
 let random;
 let num;
 let Num1 = 0;
 let Num2 = 0;
-var my_word_data = require('../../static/data/wordData.json');
-var setLocal = {
-    save(key,value){
-        localStorage.setItem(key, JSON.stringify(value))
-    },
-    get(key){
-        return JSON.parse(localStorage.getItem(key));
-    }
+
+let setLocal = {
+  save(key,value){
+    localStorage.setItem(key, JSON.stringify(value))
+  },
+  get(key){
+    return JSON.parse(localStorage.getItem(key))
+  }
 }
 
-// import propsync from '../../static/mixin/propsync.js';//引入mixin文件
+// 1. 获取到所有单词数据
+// 2. 刚进这个页面随机生成一个数字
+// 3. 找到数字对应的单词
+// 4. 找到后放入第一个数组
+// 5. 当点击“记住了”按钮时 判断这个单词有几个小绿点
+// 6. 比如说当前这个单词有一个小绿点 点击了记住按钮时 就把这个单词从数组1中删除并放入数组2
+// 7. 以此类推
+// 8. 如果点击了“没记住”按钮 假设当前有三个小绿点 那么就把该单词放到数组2中
+// 9. 如果当前单词已经有了5个小绿点的话 当再点击一次“记住了”按钮的时候 就把这个单词放入“已熟记”的数组6中
+// 10. 单词出现规律是 当每出现三个没见过的单词时 重新显示一次数组1中的单词
+// 11. 当每出现了7个没见过的单词时 重新显示一次数组2中的单词
+// 12. 以此类推
 export default {
   name: 'memory',
-//   mixins: [propsync],
   data () {
     return {
       arr: [],
-      wordNum: wordNum,
+      wordNum: 0,
       sen: '',
       isDev: '展开',
       isDevelop: 'isDevelop1',
@@ -126,25 +154,14 @@ export default {
       count3: [],
       count4: [],
       count5: [],
-
+      theNowWordHasAddedToNote: false,
+      classificationObjWordNote: []
     }
-  },
-  beforeRouteEnter(to, from, next) {
-    if(from.path === '/liuji') {
-      wordNum = 6135
-    } else if (from.path === '/siji') {
-      wordNum = 4698
-    } else {
-      wordNum = 3826
-    }
-    // console.log(from.path)
-    next()
   },
   watch:{
     // 要监听的数据名:function(){
     //     setLocal.save('todos',this.list);
     // }这个是浅监听 只能检测到this的值的改变 不能听到属性下的对象的状态改变
-
     randomWord:{ //监测它的变化
         handler:function(){
           setLocal.save('randomWord',this.randomWord);
@@ -161,21 +178,15 @@ export default {
     }
   },
   created() {
-    // this.$router.beforeEach((to, from, next) => {
-    //   console.log(to)
-    //   console.log(from)
-    //   // to 和 from 都是 路由信息对象
-      
-    //   // 这里的from.path就是上一步的url的hash值
-    // })
-    // let routes = this.$router.options.routes
-    // console.log(this.$router)
-    // console.log(this)
-    // if(routes[routes.length -1].path === '')
-    this.wordData = my_word_data;
-    this.$emit("update:disappear",false);
+    EventBus.$emit('invokeTitleInMemory', this)
+    EventBus.$emit('invokeAddedToNoteList', this)
+    EventBus.$emit('invokeWordData', this)
+    // console.log(this.wordData)
+    this.wordNum = this.wordData.data.length || 3825
     this.random = Math.floor(Math.random() * this.nowArrNum);
-    this.$nextTick(() => { // 在这个函数中调用以防内容还未更新完就执行,该函数执行在dom更新完成后,在这儿不知道有用没用,貌似没用
+
+    // nextTick是将任务放到dom更新完成之后 防止dom还未更新完成就触发了任务
+    this.$nextTick(() => {
       this.randomWord = this.wordData.data[this.random];
     });
     if(!(window.localStorage.length === 0)) {
@@ -189,17 +200,14 @@ export default {
       this.count4 = setLocal.get("count4") || [];
       this.count5 = setLocal.get("count5") || [];
     }
+    if (this.theWordHasAdded()) {
+      this.theNowWordHasAddedToNote = true
+    }
   },
 
   computed: {
-    senSplit() {
-      let a = this.randomWord.sen.map((value, index, arr) => {
-        Num2 = index;
-        let reg = new RegExp(this.randomWord.w, 'i', 'g')
-        return value.e.replace(reg, '<em>' + this.randomWord.w + '</em>')
-        // console.log(value);
-      })
-      return a
+    mySenSplit() {
+      return senSplit(this.randomWord)
     },
     isHide() {
       if(this.isDev === '收起') {
@@ -211,6 +219,9 @@ export default {
     }
   },
   methods: {
+    back() {
+      this.$router.go(-1)
+    },
     Dev() {
       if(this.isDev === '展开') {
         this.isDev = '收起';
@@ -225,7 +236,7 @@ export default {
       this.btnIsShow = false;
     },
     remeberedBtn() {
-      console.log(this.arr)
+      // console.log(this.arr)
       if(this.isDev === '收起') {
         this.Dev();
       }
@@ -275,7 +286,9 @@ export default {
         //重新渲染新的单词
         this.randomWord = this.wordData.data[this.random];
       }      
-      console.log(this.randomWord)
+      // console.log(this.randomWord)
+      this.theNowWordHasAddedToNote = this.theWordHasAdded()
+      console.log(this.theNowWordHasAddedToNote)
     },
     forgetedBtn() {
       if(this.isDev === '收起') {
@@ -324,14 +337,46 @@ export default {
         this.random = Math.floor(Math.random() * this.nowArrNum);
         this.randomWord = this.wordData.data[this.random];
       }
+      this.theNowWordHasAddedToNote = this.theWordHasAdded()
+      console.log(this.theNowWordHasAddedToNote)
+    },
+    handleAddNote() {
+      // console.log(this.randomWord)
+      this.axios.put(ADD_TO_NOTE, {
+        classification: this.classificationObj.name,
+        word: this.randomWord.w,
+        word_detail: this.randomWord
+      }).then((res) => {
+        console.log(res)
+        if (res.data.code === 26) {
+          // 说明添加成功
+          this.theNowWordHasAddedToNote = true
+        } else if (res.data.code === 23) {
+          // 说明已经添加过了
+          this.theNowWordHasAddedToNote = false
+        }
+      })
+    },
+    theWordHasAdded() {
+      let theWordHasAdded = false
+      this.classificationObjWordNote.forEach((item) => {
+        if (item === this.randomWord.w) {
+          theWordHasAdded = true
+        }
+      })
+      return theWordHasAdded
+    },
+    handleWordVoice() {
+      // console.log(this.randomWord)
+      wordVoice(this.randomWord.w)
     }
   },
-  props: ["disappear", "wordnum"],
   components: {
     level,
   }
 }
 </script>
+
 
 <style lang="stylus" rel="stylesheet/stylus">
   body
@@ -340,6 +385,25 @@ export default {
       width: 100%
       background-color: #e9e6e2
       position: absolute
+      .bookTitle
+        border-bottom: 1px dashed #B6AFA2
+        padding: 0 12px
+        .titleText
+          color: #4E4C4A
+          font-weight: bold
+          font-size: 18px
+          height: 24px
+          line-height: 24px
+        .vocabulary
+          margin: 10px 0 24px
+          color: #B6AFA2
+          font-size: 15px
+          height: 20px
+          line-height: 20px
+          span
+            margin-left: 3px
+            color: #9C0
+            font-size: 15px
       .mer-wrapper
         margin: 0 20px
         .mer-title
@@ -350,6 +414,7 @@ export default {
           font-family: "Roboto black"
           color: #c0afa2
         .word-content
+          position: relative
           background-color: #FFF
           box-shadow: 0 2px 6px #BFBDB9
           border-radius: 4px
@@ -376,7 +441,7 @@ export default {
                 font-size: 0;
                 overflow: hidden
                 background-repeat: no-repeat
-                background-image: url(../assets/image/icon.png)
+                background-image: url(../../static/image/icon.png)
                 background-size: 100%
                 vertical-align: top
           .detailed
@@ -386,7 +451,7 @@ export default {
               top: 40px
               margin: auto
               background-color: #fff
-              background-image: url(../assets/image/dict_show_detail_normal.png)
+              background-image: url(../../static/image/dict_show_detail_normal.png)
               background-size: 182px 48px
               width: 182px
               height: 48px
@@ -406,7 +471,7 @@ export default {
             border-bottom-right-radius: 4px
             min-height: 25px
             .isDevelop1
-              background: url(../assets/image/dict_result_fold_icon_normal.png) -5px -3px no-repeat
+              background: url(../../static/image/dict_result_fold_icon_normal.png) -5px -3px no-repeat
               background-size: 24px 24px
               padding-left: 18px
               padding-top: 0px
@@ -416,7 +481,7 @@ export default {
               color: #666666
               font-family: Arial
             .isDevelop2
-              background: url(../assets/image/dict_result_less_icon_normal.png) -5px -3px no-repeat
+              background: url(../../static/image/dict_result_less_icon_normal.png) -5px -3px no-repeat
               background-size: 24px 24px
               padding-left: 18px
               padding-top: 0px
@@ -486,6 +551,16 @@ export default {
                         word-wrap: break-word
                         word-break: break-all
                         color: black
+        .addToNote
+          position: absolute
+          right: 20px
+          top: 30px
+          width: 23px
+          height: 23px
+          span
+            img
+              width: 100%
+              height: 100%
         .button
           .developed
             border-radius: 4px
@@ -503,7 +578,7 @@ export default {
               width: 50%
               p
                 color: #4e4c4a
-                background: url(../assets/image/dict_school_emember_icon_normal.png) 10px 19px no-repeat
+                background: url(../../static/image/dict_school_emember_icon_normal.png) 10px 19px no-repeat
                 background-size: 24px 24px
                 line-height: 64px
                 width: 50px
@@ -519,7 +594,7 @@ export default {
               border-right: 1px solid #ccc
               p
                 color: #4e4c4a
-                background: url(../assets/image/dict_school_forget_icon_normal.png) 10px 19px no-repeat
+                background: url(../../static/image/dict_school_forget_icon_normal.png) 10px 19px no-repeat
                 background-size: 24px 24px
                 line-height: 64px
                 width: 50px

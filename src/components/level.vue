@@ -1,5 +1,5 @@
 <template>
-  <div class="level" @click="dianji">
+  <div class="level" @click="handleClick">
     <i :class="count" class="levelImg"></i>
   </div>
 </template>
@@ -14,15 +14,10 @@ export default {
         }
     },
     methods: {
-        dianji() {
+        handleClick() {
             console.log(this.countNum)
         }
     }
-    // data() {
-    //     return {
-    //         count: 'count' + this.countNum
-    //     }
-    // }
 }
 </script>
 
@@ -32,7 +27,7 @@ export default {
         float: right
         height: 20px
         .levelImg
-            background-image: url(../assets/image/difficulty.png)
+            background-image: url(../../static/image/difficulty.png)
             background-repeat: no-repeat
             background-size: 100%
             display: inline-block

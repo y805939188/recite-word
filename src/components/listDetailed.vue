@@ -33,11 +33,12 @@ export default {
     }
   },
   created() {
-      this.wordData = my_word_data
+    //   this.wordData = my_word_data
   },
   computed: {
     indexWord() {
-        return this.wordData.data.filter(function(value, index) {
+        let wordData = this.wordData instanceof Array ? this.wordData : this.wordData.data
+        return wordData.filter(function(value, index) {
                 return index <= (this.arrIndex * 40 + 39) && index >= this.arrIndex * 40
         }, this);
     }
@@ -56,10 +57,11 @@ export default {
             li
                 display: block
                 width: 100%
-                padding-left: 20px
+                // padding-left: 20px
                 border-bottom: 1px solid #dad5cb
                 position: relative
                 a:nth-of-type(1)
+                    margin-left: 20px
                     vertical-align: middle
                     margin-right: 45px
                     display: block
@@ -69,12 +71,14 @@ export default {
                     padding-top: 16px
                 div
                     font-size: 15px
+                    margin-left: 20px
                     color: #b6afa2
                     padding-right: 45px
                     text-overflow: ellipsis
                     white-space: nowrap
                     overflow: hidden
                     a:nth-of-type(1)
+                        // margin-left: 20px
                         display: inline-block
                         padding: 10px 0
                         margin-right: 10px
@@ -86,7 +90,7 @@ export default {
                             font-size: 0
                             overflow: hidden
                             background-repeat: no-repeat
-                            background-image: url(../assets/image/icon.png)
+                            background-image: url(../../static/image/icon.png)
                             background-size: 100%
                             vertical-align: top
                         span:nth-of-type(2)
@@ -105,7 +109,7 @@ export default {
                             font-size: 0
                             overflow: hidden
                             background-repeat: no-repeat
-                            background-image: url(../assets/image/icon.png)
+                            background-image: url(../../static/image/icon.png)
                             background-size: 100%
                             vertical-align: top
                         span:nth-of-type(2)
@@ -119,5 +123,6 @@ export default {
                     span
                         color: #c0afa2
                         font-size: 15px
+                        margin-left: 20px
 
 </style>

@@ -1,39 +1,47 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import Entry from '@/components/entry'
 import Memory from '@/components/memory'
 import List from '@/components/wordList'
-import GaoKao from '@/components/gaokao'
-import SiJi from '@/components/jet4'
-import LiuJi from '@/components/jet6'
+import Classification from '@/components/classification'
+import FindWord from '@/components/findWord'
+import wordDetail from '@/components/wordDetail'
+// import SiJi from '@/components/jet4'
+// import LiuJi from '@/components/jet6'
 
 Vue.use(Router)
 
 export default new Router({
   routes: [
     {
+      path: '/main',
+      name: 'main',
+      component: Entry
+    },
+    {
       path: '/memory',
       name: 'memory',
       component: Memory
     },
     {
-      path: '/wordList',
-      name: 'list',
+      path: '/wordList/:name',
+      name: 'wordList',
       component: List
     },
     {
-      path: '/gaokao',
-      name: 'gaokao',
-      component: GaoKao
+      path: '/classification/:name',
+      name: 'classification',
+      component: Classification
     },
     {
-      path: '/siji',
-      name: 'siji',
-      component: SiJi
+      path: '/FindWord',
+      name: 'FindWord',
+      component: FindWord
     },
     {
-      path: '/liuji',
-      name: 'liuji',
-      component: LiuJi
+      path: '/wordDetail',
+      name: 'wordDetail',
+      component: wordDetail
     }
   ]
 })

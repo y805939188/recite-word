@@ -1,40 +1,58 @@
 <template>
   <div class="list">
+    <div id="title"> 
+      <i class="back" @click="back"></i>
+      <span class="titl">{{classificationObj.title}}</span>
+      <div class="wordList">
+        <!-- <router-link class="list" to="/wordList">词汇表</router-link> -->
+        <i class="DNtype"></i>
+      </div>
+    </div>
     <ul v-show="isShow" class="listUl">
-      <li v-for="(listLi, index) in 96" :key="listLi.value" @click="listDisappear(index)">
+      <li v-for="(listLi, index) in Math.ceil(this.isNote ? classificationObjWordNote.length / 40 : wordData.data.length / 40)" :key="listLi.value" @click="listDisappear(index)">
         <a v-show="isShow">
           <h1>List {{index+1}}</h1>
-          <p>40词</p>
+          <p>{{index + 1 > (classificationObjWordNote.length / 40) ? (classificationObjWordNote.length % 40) : 40 }}词</p>
         </a>
       </li>
     </ul>
-    <listDetailed v-show="Show" :arrIndex="this.Index" :wordData="this.wordData"></listDetailed>
+    <listDetailed v-show="Show" :arrIndex="this.Index" :wordData="this.isNote ? classificationObjWordNote : this.wordData"></listDetailed>
   </div>
 </template>
 
 <script>
 import listDetailed from './listDetailed'
+import { EventBus } from '../bus/event-bus.js'
 export default {
   name: 'list',
   data () {
     return {
       isShow: true,
       Show: false,
-      Index: 0
+      Index: 0,
+      wordData: [],
+      classificationObjWordNote: [],
+      isNote: false
     }
   },
   created() {
-      this.$emit("update:disappear",false);
+    EventBus.$emit('invokeTitleInMemory', this)
+    EventBus.$emit('invokeWordData', this)
+    EventBus.$emit('invokeAddedToNoteList', this)
+    if (this.$route.params.name === 'vocabularyNote') {
+      this.isNote = true
+    }
   },
   methods: {
-
+    back() {
+      this.$router.go(-1)
+    },
     listDisappear(index) {
       this.isShow = false;
       this.Show = true;
       this.Index = index;
     }
   },
-  props: ["wordData", "disappear"],
   components: {
     listDetailed
   }
@@ -62,7 +80,7 @@ export default {
               height: 90px
               -webkit-box-sizing: border-box
               padding: 15px 0 0 10px
-              background: #fff url(../assets/image/mark.png) no-repeat 100% -47px
+              background: #fff url(../../static/image/mark.png) no-repeat 100% -47px
               background-size: 30%
               -webkit-box-shadow: 0px 2px 6px rgba(0,0,0,.3)
               -webkit-border-radius: 2px

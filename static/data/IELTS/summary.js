@@ -1,0 +1,1 @@
+var summary = {"numTotal":3432,"numPerList":40,"bookName":"雅思核心词","numPerFile":400,"firstLoad":30,"nextLoad":15};

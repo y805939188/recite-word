@@ -1,0 +1,1 @@
+var summary = {"numTotal":8594,"numPerList":50,"bookName":"英语专业四级词汇","numPerFile":400,"firstLoad":30,"nextLoad":15};
