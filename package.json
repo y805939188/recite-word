@@ -10,7 +10,7 @@
     "build": "node build/build.js"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "cube-ui": "^1.12.10",
     "file-saver": "^2.0.0",
     "style-loader": "^0.20.3",
