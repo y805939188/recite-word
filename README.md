@@ -26,3 +26,6 @@ For detailed explanation on how things work, checkout the [guide](http://vuejs-t
 ![image](https://github.com/y805939188/recite-word/blob/master/img/word3.png?raw=true)
 ![image](https://github.com/y805939188/recite-word/blob/master/img/word4.png?raw=true)
 ![image](https://github.com/y805939188/recite-word/blob/master/img/word5.png?raw=true)
+
+# 下载适用
+![image](https://github.com/y805939188/recite-word/blob/master/download/52811576732724_.pic.jpg?raw=true)
